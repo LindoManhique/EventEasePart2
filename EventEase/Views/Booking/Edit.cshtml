@@ -1,0 +1,49 @@
+@model EventEase.Models.Booking
+
+@{
+    ViewData["Title"] = "Edit Booking";
+}
+
+<h1>Edit Booking</h1>
+
+<div class="row">
+    <div class="col-md-4">
+
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="BookingID" />
+
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="EventID"></label>
+                <select asp-for="EventID" class="form-control" asp-items="ViewBag.EventID"></select>
+                <span asp-validation-for="EventID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="VenueID"></label>
+                <select asp-for="VenueID" class="form-control" asp-items="ViewBag.VenueID"></select>
+                <span asp-validation-for="VenueID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BookingDate"></label>
+                <input asp-for="BookingDate" class="form-control" type="date" />
+                <span asp-validation-for="BookingDate" class="text-danger"></span>
+            </div>
+
+            <br />
+
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </form>
+
+    </div>
+</div>
+
+<a asp-action="Index">Back to List</a>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

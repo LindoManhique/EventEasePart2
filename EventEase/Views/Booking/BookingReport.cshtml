@@ -1,0 +1,78 @@
+﻿@model IEnumerable<EventEase.Models.BookingReportViewModel>
+
+@{
+    ViewData["Title"] = "Booking Report";
+}
+
+<h1 class="mb-4 text-center text-primary">📊 Booking Report</h1>
+
+<!-- 🔍 SEARCH -->
+<form method="get" class="mb-4">
+    <div class="row g-2">
+        <div class="col-md-6">
+            <input type="text" name="search" class="form-control"
+                   value="@Context.Request.Query["search"]"
+                   placeholder="Search by Event Name or Booking ID..." />
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-dark w-100">Search</button>
+        </div>
+
+        <div class="col-md-2">
+            <a asp-action="BookingReport" class="btn btn-secondary w-100">Reset</a>
+        </div>
+    </div>
+</form>
+
+<!-- 📊 TABLE -->
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Event</th>
+                    <th>Venue</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span class="badge bg-primary">
+                                    #@item.BookingID
+                                </span>
+                            </td>
+
+                            <td><strong>@item.EventName</strong></td>
+
+                            <td class="text-success">
+                                @item.VenueName
+                            </td>
+
+                            <td>
+                                @item.BookingDate.ToString("dd MMM yyyy HH:mm")
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">
+                            No bookings found.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>

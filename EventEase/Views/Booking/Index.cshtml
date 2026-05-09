@@ -1,0 +1,65 @@
+﻿@model IEnumerable<EventEase.Models.Booking>
+
+@{
+    ViewData["Title"] = "Bookings";
+}
+
+<h1>Bookings</h1>
+
+<!-- 🔥 VALIDATION ALERTS (REQUIRED FOR MARKS) -->
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
+<!-- 🔘 BUTTONS -->
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Booking</a>
+    <a asp-action="BookingReport" class="btn btn-success">Booking Report</a>
+</p>
+
+<!-- 📊 TABLE -->
+<table class="table table-hover table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Event</th>
+            <th>Venue</th>
+            <th>Booking Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <span class="badge bg-primary">
+                        @(item.Event?.Name ?? "No Event")
+                    </span>
+                </td>
+
+                <td>
+                    <span class="badge bg-success">
+                        @(item.Venue?.Location ?? "No Venue")
+                    </span>
+                </td>
+
+                <td>
+                    @item.BookingDate.ToString("yyyy/MM/dd HH:mm")
+                </td>
+
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.BookingID" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.BookingID" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.BookingID" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

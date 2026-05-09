@@ -1,0 +1,31 @@
+@model EventEase.Models.Venue
+
+@{
+    ViewData["Title"] = "Delete Venue";
+}
+
+<h1>Delete Venue</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+<h3>Are you sure?</h3>
+
+<div>
+    <dl>
+        <dt>Location</dt>
+        <dd>@Model.Location</dd>
+
+        <dt>Capacity</dt>
+        <dd>@Model.Capacity</dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="VenueID" />
+        <button class="btn btn-danger">Delete</button>
+    </form>
+</div>
