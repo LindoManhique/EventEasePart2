@@ -1,32 +1,57 @@
-using EventEase.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+using EventEase.Data;
+using EventEase.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventEase.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ApplicationDbContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
-        }
+            var dashboard = new DashboardVM
+            {
+                // OVERALL STATS
+                TotalEventsAll = await _context.Events.CountAsync(),
+                TotalVenues = await _context.Venues.CountAsync(),
+                AvailableVenues = await _context.Venues.CountAsync(v => v.IsAvailable),
+                TotalBookings = await _context.Bookings.CountAsync()
+            };
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+            // EVENTS PER TYPE
+            dashboard.EventTypeStats = await _context.Events
+                .Include(e => e.EventType)
+                .GroupBy(e => e.EventType.Name)
+                .Select(g => new EventTypeStatItem
+                {
+                    EventTypeName = g.Key,
+                    TotalEvents = g.Count()
+                })
+                .ToListAsync();
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            // VENUE UTILISATION (NEW ADDITION)
+            var totalBookings = await _context.Bookings.CountAsync();
+
+            dashboard.VenueUtilisation = await _context.Venues
+                .Include(v => v.Bookings)
+                .Select(v => new VenueUtilisationVM
+                {
+                    VenueName = v.Location,
+                    BookingCount = v.Bookings.Count,
+                    UtilisationPercent = totalBookings == 0
+                        ? 0
+                        : (double)v.Bookings.Count / totalBookings * 100
+                })
+                .ToListAsync();
+
+            return View(dashboard);
         }
     }
 }

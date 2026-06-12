@@ -6,7 +6,7 @@
 
 <h1>Events</h1>
 
-<!-- ✅ ALERTS (FIXED PROPERLY) -->
+<!-- ALERTS -->
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-danger">
@@ -21,6 +21,45 @@
     </div>
 }
 
+<!--  FILTER SYSTEM-->
+<form method="get" asp-action="Index" class="mb-3">
+
+    <!-- Event Type -->
+    <select name="eventTypeId" class="form-select" style="width:200px; display:inline-block;">
+        <option value="0">All Event Types</option>
+
+        @foreach (var type in ViewBag.EventTypes)
+        {
+            <option value="@type.EventTypeID"
+                    selected="@(ViewBag.SelectedEventType == type.EventTypeID)">
+                @type.Name
+            </option>
+        }
+    </select>
+
+    <!-- From Date -->
+    <input type="date"
+           name="fromDate"
+           value="@(ViewBag.FromDate?.ToString("yyyy-MM-dd"))"
+           class="form-control"
+           style="width:180px; display:inline-block;" />
+
+    <!-- To Date -->
+    <input type="date"
+           name="toDate"
+           value="@(ViewBag.ToDate?.ToString("yyyy-MM-dd"))"
+           class="form-control"
+           style="width:180px; display:inline-block;" />
+
+    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+
+    <!-- Reset -->
+    <a asp-action="Index" class="btn btn-secondary btn-sm">
+        Reset
+    </a>
+
+</form>
+
 <p>
     <a asp-action="Create" class="btn btn-primary">Create New Event</a>
 </p>
@@ -32,6 +71,7 @@
             <th>Name</th>
             <th>Date</th>
             <th>Description</th>
+            <th>Event Type</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -55,6 +95,12 @@
                 <td>@item.Name</td>
                 <td>@item.Date.ToString("yyyy/MM/dd")</td>
                 <td>@item.Description</td>
+
+                <td>
+                    <span class="badge bg-info">
+                        @(item.EventType?.Name ?? "No Type")
+                    </span>
+                </td>
 
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.EventID" class="btn btn-warning btn-sm">Edit</a>

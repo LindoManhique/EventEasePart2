@@ -14,10 +14,10 @@ namespace EventEase.Models
         [Range(1, 100000, ErrorMessage = "Capacity must be greater than 0")]
         public int Capacity { get; set; }
 
-        // Azure Blob Storage Image
+        public bool IsAvailable { get; set; } = true;
+
         public string? ImageUrl { get; set; }
 
-        // FIX: avoid null reference crashes
         public List<Booking> Bookings { get; set; } = new();
     }
 }

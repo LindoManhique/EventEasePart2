@@ -39,6 +39,24 @@
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
 
+         
+            <div class="form-group">
+                <label asp-for="EventTypeID">Event Type</label>
+
+                <select asp-for="EventTypeID" class="form-control">
+                    <option value="">-- Select Event Type --</option>
+
+                    @foreach (var type in ViewBag.EventTypes)
+                    {
+                        <option value="@type.EventTypeID">
+                            @type.Name
+                        </option>
+                    }
+                </select>
+
+                <span asp-validation-for="EventTypeID" class="text-danger"></span>
+            </div>
+
             <div class="form-group">
                 <label>Event Image</label>
                 <input type="file" name="imageFile" class="form-control" />

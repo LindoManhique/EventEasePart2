@@ -17,16 +17,46 @@ namespace EventEase.Controllers
             _blobService = blobService;
         }
 
-        public async Task<IActionResult> Index()
+        // 
+        public async Task<IActionResult> Index(int? eventTypeId, DateTime? fromDate, DateTime? toDate)
         {
-            return View(await _context.Events.ToListAsync());
+            var eventsQuery = _context.Events
+                .Include(e => e.EventType)
+                .AsQueryable();
+
+            // 
+            if (eventTypeId.HasValue && eventTypeId > 0)
+            {
+                eventsQuery = eventsQuery.Where(e => e.EventTypeID == eventTypeId);
+            }
+
+            // 
+            if (fromDate.HasValue)
+            {
+                eventsQuery = eventsQuery.Where(e => e.Date >= fromDate.Value);
+            }
+
+            if (toDate.HasValue)
+            {
+                eventsQuery = eventsQuery.Where(e => e.Date <= toDate.Value);
+            }
+
+            ViewBag.EventTypes = await _context.EventTypes.ToListAsync();
+            ViewBag.SelectedEventType = eventTypeId;
+            ViewBag.FromDate = fromDate;
+            ViewBag.ToDate = toDate;
+
+            return View(await eventsQuery.ToListAsync());
         }
 
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
-            var item = await _context.Events.FirstOrDefaultAsync(x => x.EventID == id);
+            var item = await _context.Events
+                .Include(e => e.EventType)
+                .FirstOrDefaultAsync(x => x.EventID == id);
+
             if (item == null) return NotFound();
 
             return View(item);
@@ -34,16 +64,19 @@ namespace EventEase.Controllers
 
         public IActionResult Create()
         {
+            ViewBag.EventTypes = _context.EventTypes.ToList();
             return View();
         }
 
-        // CREATE FIXED
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Event eventItem, IFormFile? imageFile)
         {
             if (!ModelState.IsValid)
+            {
+                ViewBag.EventTypes = _context.EventTypes.ToList();
                 return View(eventItem);
+            }
 
             if (imageFile != null && imageFile.Length > 0)
                 eventItem.ImageUrl = await _blobService.UploadFileAsync(imageFile);
@@ -61,10 +94,10 @@ namespace EventEase.Controllers
             var item = await _context.Events.FindAsync(id);
             if (item == null) return NotFound();
 
+            ViewBag.EventTypes = _context.EventTypes.ToList();
             return View(item);
         }
 
-        // EDIT FIXED
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Event formModel, IFormFile? imageFile, bool deleteImage)
@@ -73,11 +106,15 @@ namespace EventEase.Controllers
             if (item == null) return NotFound();
 
             if (!ModelState.IsValid)
+            {
+                ViewBag.EventTypes = _context.EventTypes.ToList();
                 return View(formModel);
+            }
 
             item.Name = formModel.Name;
             item.Date = formModel.Date;
             item.Description = formModel.Description;
+            item.EventTypeID = formModel.EventTypeID;
 
             if (deleteImage)
             {
@@ -98,7 +135,6 @@ namespace EventEase.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // DELETE PROTECTED
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();

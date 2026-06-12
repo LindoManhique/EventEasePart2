@@ -1,8 +1,105 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model EventEase.Models.ViewModels.DashboardVM
+
+@{
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h1> EventEase Dashboard</h1>
+
+<!-- SUMMARY CARDS -->
+<div class="row mb-4">
+
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5>Total Events</h5>
+                <h2>@Model.TotalEventsAll</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5>Total Venues</h5>
+                <h2>@Model.TotalVenues</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5>Available Venues</h5>
+                <h2>@Model.AvailableVenues</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <h5>Total Bookings</h5>
+                <h2>@Model.TotalBookings</h2>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<!-- EVENTS PER TYPE -->
+<h3>Events per Type</h3>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Event Type</th>
+            <th>Total Events</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model.EventTypeStats)
+        {
+            <tr>
+                <td>@item.EventTypeName</td>
+                <td>
+                    <span class="badge bg-primary">
+                        @item.TotalEvents
+                    </span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!--  VENUE UTILISATION DASHBOARD (NEW FEATURE) -->
+<h3 class="mt-5">Venue Utilisation %</h3>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Venue</th>
+            <th>Bookings</th>
+            <th>Utilisation</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model.VenueUtilisation)
+        {
+            <tr>
+                <td>@item.VenueName</td>
+                <td>@item.BookingCount</td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar"
+                             style="width:@item.UtilisationPercent%">
+                            @item.UtilisationPercent.ToString("0.0")%
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

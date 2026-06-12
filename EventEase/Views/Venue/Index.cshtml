@@ -6,7 +6,23 @@
 
 <h1>Venues</h1>
 
-<!-- ✅ ALERTS (FIXED) -->
+<!-- FILTER -->
+<form method="get" asp-action="Index" class="mb-3">
+
+    <label>
+        <input type="checkbox"
+               name="onlyAvailable"
+               value="true"
+        @(ViewBag.OnlyAvailable == true ? "checked" : "") />
+        Only Available Venues (no bookings)
+    </label>
+
+    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+
+    <a asp-action="Index" class="btn btn-secondary btn-sm">Reset</a>
+</form>
+
+<!-- ALERTS -->
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-danger">

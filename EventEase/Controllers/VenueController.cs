@@ -17,9 +17,22 @@ namespace EventEase.Controllers
             _blobService = blobService;
         }
 
-        public async Task<IActionResult> Index()
+        // 
+        public async Task<IActionResult> Index(bool onlyAvailable = false)
         {
-            return View(await _context.Venues.ToListAsync());
+            var venuesQuery = _context.Venues
+                .Include(v => v.Bookings)
+                .AsQueryable();
+
+            // 
+            if (onlyAvailable)
+            {
+                venuesQuery = venuesQuery.Where(v => !v.Bookings.Any());
+            }
+
+            ViewBag.OnlyAvailable = onlyAvailable;
+
+            return View(await venuesQuery.ToListAsync());
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -64,7 +77,6 @@ namespace EventEase.Controllers
             return View(item);
         }
 
-        // EDIT FIXED (IMPORTANT PART)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Venue formModel, IFormFile? imageFile, bool deleteImage)
@@ -78,7 +90,6 @@ namespace EventEase.Controllers
             item.Location = formModel.Location;
             item.Capacity = formModel.Capacity;
 
-            // DELETE IMAGE
             if (deleteImage)
             {
                 if (!string.IsNullOrEmpty(item.ImageUrl))
@@ -86,7 +97,6 @@ namespace EventEase.Controllers
 
                 item.ImageUrl = null;
             }
-            // UPLOAD IMAGE
             else if (imageFile != null && imageFile.Length > 0)
             {
                 if (!string.IsNullOrEmpty(item.ImageUrl))
@@ -99,7 +109,6 @@ namespace EventEase.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // DELETE PROTECTED
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();

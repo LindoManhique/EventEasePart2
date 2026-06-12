@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventEase.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260505234426_AddImageUrlToEvent")]
-    partial class AddImageUrlToEvent
+    [Migration("20260612134046_Part3Filters")]
+    partial class Part3Filters
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -81,18 +81,69 @@ namespace EventEase.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("EventTypeID")
+                        .HasColumnType("int");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("EventID");
 
+                    b.HasIndex("EventTypeID");
+
                     b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("EventEase.Models.EventType", b =>
+                {
+                    b.Property<int>("EventTypeID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EventTypeID"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("EventTypeID");
+
+                    b.ToTable("EventTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            EventTypeID = 1,
+                            Name = "Conference"
+                        },
+                        new
+                        {
+                            EventTypeID = 2,
+                            Name = "Wedding"
+                        },
+                        new
+                        {
+                            EventTypeID = 3,
+                            Name = "Concert"
+                        },
+                        new
+                        {
+                            EventTypeID = 4,
+                            Name = "Seminar"
+                        },
+                        new
+                        {
+                            EventTypeID = 5,
+                            Name = "Expo"
+                        });
                 });
 
             modelBuilder.Entity("EventEase.Models.Venue", b =>
@@ -109,9 +160,13 @@ namespace EventEase.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.HasKey("VenueID");
 
@@ -123,13 +178,13 @@ namespace EventEase.Migrations
                     b.HasOne("EventEase.Models.Event", "Event")
                         .WithMany("Bookings")
                         .HasForeignKey("EventID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("EventEase.Models.Venue", "Venue")
                         .WithMany("Bookings")
                         .HasForeignKey("VenueID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Event");
@@ -139,7 +194,23 @@ namespace EventEase.Migrations
 
             modelBuilder.Entity("EventEase.Models.Event", b =>
                 {
+                    b.HasOne("EventEase.Models.EventType", "EventType")
+                        .WithMany("Events")
+                        .HasForeignKey("EventTypeID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("EventType");
+                });
+
+            modelBuilder.Entity("EventEase.Models.Event", b =>
+                {
                     b.Navigation("Bookings");
+                });
+
+            modelBuilder.Entity("EventEase.Models.EventType", b =>
+                {
+                    b.Navigation("Events");
                 });
 
             modelBuilder.Entity("EventEase.Models.Venue", b =>

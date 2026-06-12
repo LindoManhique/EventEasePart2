@@ -18,9 +18,13 @@ namespace EventEase.Models
         [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
         public string Description { get; set; } = string.Empty;
 
+        [Required]
+        public int EventTypeID { get; set; } = 1;
+
+        public EventType? EventType { get; set; }
+
         public string? ImageUrl { get; set; }
 
-        // FIX: avoid null reference crashes
         public List<Booking> Bookings { get; set; } = new();
     }
 }
